@@ -30,8 +30,8 @@ public:
     void unmapFile();
     char *file();
     size_t fileLen() const;
-    void errorConnect(Buffer &buff, std::string message);
-    void code() const;
+    void errorContent(Buffer &buff, std::string message);
+    int code() const;
 
 private:
     void addStateLine_(Buffer &buff);

@@ -126,6 +126,57 @@ bool HttpRequest::userVerify(const std::string &name,
     char order[256] {0};
     MYSQL_FIELD *fields = nullptr;
     MYSQL_RES *res = nullptr;
+
+    if (!is_login) {
+        flag = true;
+    }
+    snprintf(order, 256,
+             "SELECT username, password FROM user WHERE username='%s' LIMIT 1",
+             name.c_str());
+    LOG_DEBUG("%s", order);
+
+    if (mysql_query(sql, order)) {
+        mysql_free_result(res);
+        return false;
+    }
+    res = mysql_store_result(sql);
+    fields = mysql_fetch_fields(res);
+
+    while (MYSQL_ROW row = mysql_fetch_row(res)) {
+        LOG_DEBUG("MYSQL ROW: %s %s", row[0], row[1]);
+        std::string password(row[1]);
+        if (is_login) {
+            if (passwd == password) {
+                flag = true;
+            } else {
+                flag = false;
+                LOG_DEBUG("password error");
+            }
+        } else {
+            flag = false;
+            LOG_DEBUG("user used");
+        }
+    }
+    mysql_free_result(res);
+
+    if (!is_login && flag == true) {
+        LOG_DEBUG("regirster");
+        bzero(order, 256);
+        snprintf(order, 256,
+                 "INSERT INTO user(username, password) VALUES('%s', '%s')",
+                 name.c_str(),
+                 passwd.c_str());
+        LOG_DEBUG("%s", order);
+        if (mysql_query(sql, order)) {
+            LOG_DEBUG("Insert error");
+            flag = false;
+        }
+        flag = true;
+    }
+
+    SqlConnectPool::instance()->freeConnect(sql);
+    LOG_DEBUG("userVerify success");
+    return flag;
 }
 
 int HttpRequest::converHexToDec(char ch) {
