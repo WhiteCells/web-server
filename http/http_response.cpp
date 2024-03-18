@@ -45,7 +45,7 @@ const std::unordered_map<int, std::string> HttpResponse::CODE_PATH = {
 
 HttpResponse::HttpResponse() {
     code_ = -1;
-    path_ = src_dir_;
+    path_ = src_dir_ = "";
     is_keep_alive_ = false;
     mm_file_ = nullptr;
     mm_file_stat_ = {0};

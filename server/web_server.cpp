@@ -38,6 +38,7 @@ epoller_(new Epoller()) {
         if (is_close_) {
             LOG_ERROR("### Server init error ###");
         } else {
+            LOG_INFO("### Server init ###");
             LOG_INFO("Port: %d, OpenLinger: %s", port_, opt_linger ? "true" : "false");
             LOG_INFO("Listen Mode: %s, OpenConnect Mode: %s",
                      ((listen_event_ & EPOLLET) ? "ET" : "LT"),
@@ -147,11 +148,8 @@ bool WebServer::initSocket_() {
         return false;
     }
 
-    ret = setFdNonblock(listen_fd_);
-    if (ret == -1) {
-        LOG_ERROR("set fd nonblock error");
-        return false;
-    }
+    setFdNonblock(listen_fd_);
+
     LOG_INFO("Server Port: %d", port_);
     return true;
 }

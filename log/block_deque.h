@@ -19,46 +19,27 @@ template<class T>
 class BlockDeque {
 public:
     explicit BlockDeque(size_t max_capacity = 1000);
-
     ~BlockDeque();
-
     void close();
-
     void flush();
-
     void clear();
-
     bool full();
-
     bool empty();
-
     size_t size();
-
     size_t capacity();
-
     T front();
-
     T back();
-
     void push_back(const T &item);
-
     void push_front(const T &item);
-
     bool pop(T &item);
-
     bool pop(T &item, int timeout);
 
 private:
     std::deque<T> deque_;
-
     size_t capacity_;
-
     std::mutex mtx_;
-
     bool is_close_;
-
     std::condition_variable consumer_;
-
     std::condition_variable producer_;
 };
 

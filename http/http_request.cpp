@@ -62,6 +62,7 @@ bool HttpRequest::parse(Buffer &buff) {
                 break;
         }
         if (line_end == buff.beginWrite()) {
+            buff.retrieveAll();
             break;
         }
         buff.retrieveUntil(line_end + 2);

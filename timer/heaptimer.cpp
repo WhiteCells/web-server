@@ -24,14 +24,13 @@ void HeapTimer::adjust(int id, int timeout) {
 
 void HeapTimer::add(int id, int timeout, const TimeoutCallBack &cb) {
     assert(id >= 0);
-    size_t i;
     if (ref_.count(id) == 0) {
-        i = heap_.size();
+        size_t i = heap_.size();
         ref_[id] = i;
         heap_.push_back({id, Clock::now() + MS(timeout), cb});
         siftup_(i);
     } else {
-        i = ref_[id];
+        size_t i = ref_[id];
         heap_[i].expires = Clock::now() + MS(timeout);
         heap_[i].cb = cb;
         if (!siftdown_(i, heap_.size())) {
@@ -119,7 +118,7 @@ void HeapTimer::siftup_(size_t i) {
 
 bool HeapTimer::siftdown_(size_t index, size_t n) {
     assert(index >= 0 && index < heap_.size());
-    assert(n >= 0 && n < heap_.size());
+    assert(n >= 0 && n <= heap_.size());
     size_t i = index;
     size_t j = i * 2 + 1;
     while (j < n) {
@@ -138,7 +137,7 @@ bool HeapTimer::siftdown_(size_t index, size_t n) {
 
 void HeapTimer::swapTimerNode_(size_t i, size_t j) {
     assert(i >= 0 && i < heap_.size());
-    assert(j >= 9 && j < heap_.size());
+    assert(j >= 0 && j < heap_.size());
     std::swap(heap_[i], heap_[j]);
     ref_[heap_[i].id] = i;
     ref_[heap_[j].id] = j;
