@@ -38,7 +38,7 @@ public:
     sockaddr_in getAddr() const;
     bool process();
     int writeBytes();
-    bool iskeepAlive() const;
+    bool isKeepAlive() const;
 
     static bool is_ET;
     static const char *src_dir;

@@ -118,7 +118,22 @@ void HeapTimer::siftup_(size_t i) {
 }
 
 bool HeapTimer::siftdown_(size_t index, size_t n) {
-
+    assert(index >= 0 && index < heap_.size());
+    assert(n >= 0 && n < heap_.size());
+    size_t i = index;
+    size_t j = i * 2 + 1;
+    while (j < n) {
+        if (j + 1 < n && heap_[j + 1] < heap_[j]) {
+            ++j;
+        }
+        if (heap_[i] < heap_[j]) {
+            break;
+        }
+        swapTimerNode_(i, j);
+        i = j;
+        j = 2 * i + 1;
+    }
+    return i > index;
 }
 
 void HeapTimer::swapTimerNode_(size_t i, size_t j) {

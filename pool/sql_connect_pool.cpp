@@ -18,7 +18,8 @@ void SqlConnectPool::init(const char *host, int port,
                           const  char *db_name, int connect_size) {
     assert(connect_size > 0);
     for (int i = 0; i < connect_size; ++i) {
-        MYSQL *sql = mysql_init(sql);
+        MYSQL *sql = nullptr;
+        sql = mysql_init(sql);
         if (!sql) {
             LOG_ERROR("MySql init error");
             assert(sql);
@@ -70,7 +71,8 @@ void SqlConnectPool::closePool() {
 }
 
 SqlConnectPool::SqlConnectPool() {
-    
+    use_count_ = 0;
+    free_count_ = 0;
 }
 
 SqlConnectPool::~SqlConnectPool() {

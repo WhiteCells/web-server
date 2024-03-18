@@ -44,8 +44,8 @@ private:
     void addClient_(int fd, sockaddr_in addr);
 
     void dealListen_();
-    void dealWrite_(HttpConnect *client);
     void dealRead_(HttpConnect *client);
+    void dealWrite_(HttpConnect *client);
 
     void sendError_(int fd, const char *info);
     void extentTime_(HttpConnect *client);

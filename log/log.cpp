@@ -74,7 +74,7 @@ void Log::write(int level, const char *format, ...) {
     va_list valist;
 
     if (today_ != t.tm_mday
-        || line_count_ && (line_count_ % LOG_MAX_LINES == 0)) {
+        || (line_count_ % LOG_MAX_LINES == 0)) {
         std::unique_lock<std::mutex> locker(mtx_);
         locker.unlock();
 

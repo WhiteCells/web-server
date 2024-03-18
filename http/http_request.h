@@ -33,7 +33,7 @@ public:
         NO_REQUEST = 0,
         GET_REQUEST,
         BAD_REQUEST,
-        NO_REQUEST,
+        NO_RESOURSE,
         FORBIDDENT_REQUEST,
         FILE_REQUEST,
         INTERNAL_ERROR,

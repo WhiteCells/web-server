@@ -122,9 +122,9 @@ bool HttpRequest::userVerify(const std::string &name,
     assert(sql);
 
     bool flag = false;
-    unsigned j = 0;
+    // unsigned j = 0;
     char order[256] {0};
-    MYSQL_FIELD *fields = nullptr;
+    // MYSQL_FIELD *fields = nullptr;
     MYSQL_RES *res = nullptr;
 
     if (!is_login) {
@@ -140,7 +140,7 @@ bool HttpRequest::userVerify(const std::string &name,
         return false;
     }
     res = mysql_store_result(sql);
-    fields = mysql_fetch_fields(res);
+    // fields = mysql_fetch_fields(res);
 
     while (MYSQL_ROW row = mysql_fetch_row(res)) {
         LOG_DEBUG("MYSQL ROW: %s %s", row[0], row[1]);
@@ -258,7 +258,7 @@ void HttpRequest::parseFromUrlEncoded_() {
     std::string key, value;
     int num = 0;
     int i = 0, j = 0;
-    for (; i < body_.size(); ++i) {
+    for (; i < (int)body_.size(); ++i) {
         char ch = body_[i];
         switch (ch) {
             case '=':

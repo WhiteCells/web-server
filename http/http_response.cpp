@@ -119,7 +119,7 @@ int HttpResponse::code() const {
 
 void HttpResponse::addStateLine_(Buffer &buff) {
     std::string status;
-    if (CODE_STATUS.count(code_) == -1) {
+    if (CODE_STATUS.count(code_) == 1) {
         status = CODE_STATUS.find(code_)->second;
     } else {
         code_ = 400;

@@ -118,8 +118,8 @@ bool WebServer::initSocket_() {
     }
 
     int optval = 1;
-    ret = setsockopt(listen_fd_, SOL_SOCKET, SO_LINGER,
-                     &opt_linger, sizeof(opt_linger));
+    ret = setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEADDR,
+                     (const void *)&optval, sizeof(int));
     if (ret == -1) {
         LOG_ERROR("set socket error");
         close(listen_fd_);
@@ -196,40 +196,88 @@ void WebServer::dealListen_() {
     struct sockaddr_in addr;
     socklen_t len = sizeof(addr);
     do {
-
+        int fd = accept(listen_fd_, (struct sockaddr *)&addr, &len);
+        if (fd <= 0) {
+            return;
+        } else if (HttpConnect::user_count >= MAX_FD) {
+            sendError_(fd, "server busy");
+            LOG_WARN("Clients is full");
+            return;
+        }
+        addClient_(fd, addr);
     } while (listen_event_ & EPOLLET);
 }
 
-void WebServer::dealWrite_(HttpConnect *client) {
-
+void WebServer::dealRead_(HttpConnect *client) {
+    assert(client);
+    extentTime_(client);
+    threadpool_->addTask(std::bind(&WebServer::onRead_, this, client));
 }
 
-void WebServer::dealRead_(HttpConnect *client) {
-
+void WebServer::dealWrite_(HttpConnect *client) {
+    assert(client);
+    extentTime_(client);
+    threadpool_->addTask(std::bind(&WebServer::onWrite_, this, client));
 }
 
 void WebServer::sendError_(int fd, const char *info) {
-
+    assert(fd > 0);
+    int ret = send(fd, info, strlen(info), 0);
+    if (ret < 0) {
+        LOG_WARN("send error to client[%d] error", fd);
+    }
+    close(fd);
 }
 
 void WebServer::extentTime_(HttpConnect *client) {
-
+    assert(client);
+    if (timeout_ms_ > 0) {
+        timer_->adjust(client->getFd(), timeout_ms_);
+    }
 }
 
 void WebServer::closeConnect_(HttpConnect *client) {
-
+    assert(client);
+    LOG_INFO("Client[%d] quit", client->getFd());
+    epoller_->delFd(client->getFd());
+    client->closeConnect();
 }
 
 void WebServer::onRead_(HttpConnect *client) {
-
+    assert(client);
+    int read_errno = 0;
+    int ret = client->read(&read_errno);
+    if (ret <= 0 && read_errno != EAGAIN) {
+        closeConnect_(client);
+        return;
+    }
+    onProcess_(client);
 }
 
 void WebServer::onWrite_(HttpConnect *client) {
-
+    assert(client);
+    int write_errno = 0;
+    int ret = client->write(&write_errno);
+    if (client->writeBytes() == 0) {
+        if (client->isKeepAlive()) {
+            onProcess_(client);
+            return;
+        }
+    } else if (ret < 0) {
+        if (write_errno == EAGAIN) {
+            epoller_->modFd(client->getFd(), connect_event_ | EPOLLOUT);
+            return;
+        }
+    }
+    closeConnect_(client);
 }
 
 void WebServer::onProcess_(HttpConnect *client) {
-
+    if (client->process()) {
+        epoller_->modFd(client->getFd(), connect_event_ | EPOLLOUT);
+    } else {
+        epoller_->modFd(client->getFd(), connect_event_ | EPOLLIN);
+    }
 }
 
 int WebServer::setFdNonblock(int fd) {

@@ -13,6 +13,7 @@
 #include <deque>
 #include <condition_variable>
 #include <sys/time.h>
+#include <assert.h>
 
 template<class T>
 class BlockDeque {

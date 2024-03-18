@@ -8,6 +8,10 @@
 
 #include "http_connect.h"
 
+bool HttpConnect::is_ET;
+const char *HttpConnect::src_dir;
+std::atomic<int> HttpConnect::user_count;
+
 HttpConnect::HttpConnect() {
     fd_ = -1;
     addr_ = {0};
@@ -128,6 +132,6 @@ int HttpConnect::writeBytes() {
     return iov_[0].iov_len + iov_[1].iov_len;
 }
 
-bool HttpConnect::iskeepAlive() const {
+bool HttpConnect::isKeepAlive() const {
     return request_.isKeepAlive();
 }
